@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail Address Generator Pro</title>
+    <style>
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --bg-color: #f5f7fa;
+            --panel-bg-color: #ffffff;
+            --border-color: #e1e8ed;
+            --primary-color: #667eea;
+            --primary-hover-color: #5568d3;
+            --primary-active-color: #4451b8;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --text-color: #1f2937;
+            --text-secondary-color: #6b7280;
+            --text-light-color: #9ca3af;
+            --header-bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 20px 32px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-title::before {
+            content: '✉️';
+            font-size: 1.8rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .header-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 24px;
+            gap: 24px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .panel:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .input-panel {
+            flex: 1;
+            min-width: 320px;
+            max-width: 400px;
+            overflow-y: auto;
+        }
+        
+        .output-panel {
+            flex: 2.5;
+            position: relative;
+        }
+        
+        .panel-header {
+            padding: 20px 24px;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        }
+        
+        .panel-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .input-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .input-group label::before {
+            content: '●';
+            color: var(--primary-color);
+            font-size: 0.6rem;
+        }
+        
+        textarea, input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            font-family: 'Menlo', 'Consolas', monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            transition: var(--transition);
+            background-color: #f9fafb;
+        }
+        
+        textarea {
+            height: 100px;
+        }
+        
+        textarea:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background-color: white;
+            transform: translateY(-1px);
+        }
+        
+        textarea:hover, input[type="number"]:hover {
+            border-color: var(--primary-hover-color);
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .select-wrapper {
+            position: relative;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            font-family: var(--font-family);
+            font-size: 0.9rem;
+            background-color: #f9fafb;
+            cursor: pointer;
+            transition: var(--transition);
+            appearance: none;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background-color: white;
+        }
+        
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--text-secondary-color);
+            font-size: 0.7rem;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 14px 0 rgba(102, 126, 234, 0.4);
+        }
+        
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(102, 126, 234, 0.5);
+        }
+        
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px 0 rgba(102, 126, 234, 0.4);
+        }
+        
+        .generate-btn.generating {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .generate-btn.generating::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        #results-output {
+            width: 100%;
+            height: 100%;
+            border: none;
+            font-family: 'Menlo', 'Consolas', monospace;
+            font-size: 0.85rem;
+            resize: none;
+            background-color: #f9fafb;
+            padding: 16px;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+        
+        #results-output:focus {
+            outline: none;
+            background-color: white;
+        }
+        
+        .stats-summary {
+            font-size: 0.9rem;
+        }
+        
+        .stats-summary h4 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            color: var(--primary-color);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stats-summary h4::before {
+            content: '📊';
+            font-size: 1rem;
+        }
+        
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+        
+        .stats-item:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+            transform: translateX(4px);
+        }
+        
+        .stats-item span:last-child {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .output-actions {
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        
+        .action-btn {
+            background: white;
+            border: 2px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+        
+        .action-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .action-btn:active {
+            transform: translateY(0);
+        }
+        
+        .action-btn span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .toast::before {
+            content: '✓';
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+        }
+        
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 0 3px 3px 0;
+        }
+        
+        .feature-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            color: var(--primary-color);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            pointer-events: none;
+        }
+        
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-hover-color), var(--secondary-color));
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .input-panel {
+                max-width: 100%;
+            }
+            
+            .output-actions {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 12px;
+                justify-content: flex-end;
+            }
+        }
+        
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .generating-text {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progress-bar"></div>
+    
+    <header class="header">
+        <div class="header-title">
+            Gmail Generator Pro
+            <span class="header-badge">PREMIUM</span>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="input-panel panel">
+            <div class="panel-header">⚙️ Configuration</div>
+            <div class="panel-body">
+                <div class="input-group">
+                    <label for="female-names">Female First Names 
+                        <span class="tooltip" data-tooltip="Comma or line separated">ℹ️</span>
+                    </label>
+                    <textarea id="female-names" placeholder="Enter female names..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="male-names">Male First Names
+                        <span class="tooltip" data-tooltip="Comma or line separated">ℹ️</span>
+                    </label>
+                    <textarea id="male-names" placeholder="Enter male names..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="surnames">Surnames
+                        <span class="tooltip" data-tooltip="Comma or line separated">ℹ️</span>
+                    </label>
+                    <textarea id="surnames" placeholder="Enter surnames..."></textarea>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="email-count">Email Count</label>
+                        <input type="number" id="email-count" value="2000" min="1" max="10000">
+                    </div>
+                    <div class="input-group">
+                        <label for="line-spacing">Line Spacing</label>
+                        <div class="select-wrapper">
+                            <select id="line-spacing">
+                                <option value="1">Single</option>
+                                <option value="2">Double</option>
+                                <option value="3">Triple</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="generate-btn" class="generate-btn">
+                    <span>🚀 Generate Emails</span>
+                </button>
+            </div>
+            
+            <div class="panel-header">📊 Statistics</div>
+            <div class="panel-body">
+                <div id="stats-output" class="stats-summary">
+                    <p style="text-align: center; color: var(--text-light-color); padding: 20px;">
+                        Click "Generate Emails" to see statistics
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="output-panel panel">
+            <div class="panel-header">
+                <span>📧 Generated Results</span>
+            </div>
+            <div class="panel-body">
+                <div class="output-actions">
+                    <button id="copy-txt-btn" class="action-btn">
+                        <span>📋 Copy</span>
+                    </button>
+                    <button id="download-txt-btn" class="action-btn">
+                        <span>📥 TXT</span>
+                    </button>
+                    <button id="download-csv-btn" class="action-btn">
+                        <span>📊 CSV</span>
+                    </button>
+                </div>
+                <textarea id="results-output" readonly placeholder="Your generated email addresses will appear here...
+
+✨ Premium Features:
+• Custom email count (1-10,000)
+• Adjustable line spacing
+• One-click copy & download
+• Real-time statistics
+• Beautiful design"></textarea>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // --- DEFAULT DATA ---
+        const defaultFemaleNames = [
+            "Emily", "Hannah", "Madison", "Ashley", "Sarah", "Alexis", "Samantha", "Jessica",
+            "Elizabeth", "Taylor", "Lauren", "Alyssa", "Kayla", "Abigail", "Brianna", "Olivia",
+            "Emma", "Megan", "Grace", "Victoria", "Rachel", "Anna", "Sydney", "Destiny",
+            "Morgan", "Jennifer", "Jasmine", "Haley", "Julia", "Kaitlyn", "Nicole", "Amanda",
+            "Katherine", "Natalie", "Hailey", "Alexandra", "Savannah", "Chloe", "Rebecca", "Stephanie",
+            "Maria", "Sophia", "Mackenzie", "Allison", "Isabella", "Amber", "Mary", "Danielle",
+            "Gabrielle", "Jordan", "Brooke", "Michelle", "Sierra", "Katelyn", "Andrea", "Madeline",
+            "Sara", "Kimberly", "Courtney", "Erin", "Brittany", "Vanessa", "Jenna", "Jacqueline",
+            "Caroline", "Faith", "Makayla", "Bailey", "Paige", "Shelby", "Melissa", "Maggie",
+            "Lily", "Catherine", "Monica", "Aurora", "Zoe", "Amy", "Claire", "Evelyn", "Linda",
+            "Angela", "Ruth", "Diana", "Janet", "Carolyn", "Frances", "Christine", "Donna",
+            "Virginia", "Heather", "Julie", "Joyce", "Kelly", "Christina", "Joan", "Judith",
+            "Cheryl", "Martha", "Gloria", "Teresa", "Janice", "Marie", "Diane"
+        ];
+
+        const defaultMaleNames = [
+            "James", "Robert", "John", "Michael", "David", "William", "Richard", "Thomas",
+            "Christopher", "Charles", "Daniel", "Matthew", "Anthony", "Mark", "Donald", "Steven",
+            "Paul", "Andrew", "Joshua", "Kenneth", "Kevin", "Brian", "George", "Timothy",
+            "Ronald", "Jason", "Edward", "Jeffrey", "Ryan", "Jacob", "Gary", "Nicholas",
+            "Eric", "Jonathan", "Stephen", "Larry", "Justin", "Scott", "Brandon", "Benjamin",
+            "Samuel", "Gregory", "Alexander", "Patrick", "Frank", "Raymond", "Jack", "Dennis",
+            "Jerry", "Tyler", "Aaron", "Jose", "Henry", "Adam", "Douglas", "Nathan",
+            "Peter", "Zachary", "Kyle", "Noah", "Alan", "Ethan", "Jeremy", "Arthur", "Wayne",
+            "Sean", "Mason", "Carl", "Louis", "Harold", "Roger", "Ralph", "Vincent", "Eugene",
+            "Bobby", "Victor", "Roy", "Keith", "Philip", "Billy", "Johnny", "Terry",
+            "Willie", "Albert", "Lawrence", "Ernest", "Joe", "Antonio", "Jesse"
+        ];
+        
+        const defaultSurnames = [
+            "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
+            "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas",
+            "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White",
+            "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young",
+            "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores",
+            "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell",
+            "Carter", "Roberts", "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker",
+            "Cruz", "Edwards", "Collins", "Reyes", "Stewart", "Morris", "Murphy", "Cook",
+            "Rogers", "Gutierrez", "Ortiz", "Morgan", "Cooper", "Peterson", "Bailey",
+            "Reed", "Kelly", "Howard", "Ramos", "Ward", "Richardson", "Watson",
+            "Brooks", "Chavez", "Wood", "James", "Bennett", "Gray", "Mendoza", "Ruiz"
+        ];
+
+        // --- DOM ELEMENTS ---
+        const femaleNamesTextarea = document.getElementById('female-names');
+        const maleNamesTextarea = document.getElementById('male-names');
+        const surnamesTextarea = document.getElementById('surnames');
+        const emailCountInput = document.getElementById('email-count');
+        const lineSpacingSelect = document.getElementById('line-spacing');
+        const generateBtn = document.getElementById('generate-btn');
+        const resultsOutput = document.getElementById('results-output');
+        const statsOutput = document.getElementById('stats-output');
+        const copyTxtBtn = document.getElementById('copy-txt-btn');
+        const downloadTxtBtn = document.getElementById('download-txt-btn');
+        const downloadCsvBtn = document.getElementById('download-csv-btn');
+        const toastEl = document.getElementById('toast');
+        const progressBar = document.getElementById('progress-bar');
+
+        let generatedData = [];
+
+        // --- HELPER FUNCTIONS ---
+        const parseInput = (text) => text.split(/[,\n]/).map(name => name.trim()).filter(name => name.length > 0);
+        const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+        
+        function showToast(message) {
+            toastEl.textContent = message;
+            toastEl.classList.add('show');
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 3000);
+        }
+        
+        function updateProgress(percent) {
+            progressBar.style.width = percent + '%';
+            if (percent === 100) {
+                setTimeout(() => {
+                    progressBar.style.width = '0%';
+                }, 500);
+            }
+        }
+
+        // --- CORE LOGIC ---
+        function generateEmails(count, femaleNames, maleNames, surnames) {
+            const emailData = [];
+            const usedEmails = new Set();
+            const countries = ["United States", "United Kingdom", "Australia", "Germany"];
+            const emailProviders = ["@gmail.com"];
+
+            let attempts = 0;
+            const maxAttempts = count * 3;
+
+            while (emailData.length < count && attempts < maxAttempts) {
+                attempts++;
+                const gender = getRandomElement(["Male", "Female"]);
+                const firstName = getRandomElement(gender === "Male" ? maleNames : femaleNames);
+                const surname = getRandomElement(surnames);
+                const country = getRandomElement(countries);
+                const fullName = `${firstName} ${surname}`;
+
+                const provider = emailProviders[0];
+                const providerName = provider.replace(/[@.]|com/g, "");
+                
+                let email = '';
+                const fmt = getRandomInt(1, 8);
+                switch (fmt) {
+                    case 1: email = `${firstName.toLowerCase()}.${surname.toLowerCase()}${provider}`; break;
+                    case 2: email = `${firstName.toLowerCase()}${surname.toLowerCase()}${provider}`; break;
+                    case 3: email = `${firstName.toLowerCase()}_${surname.toLowerCase()}${provider}`; break;
+                    case 4: email = `${firstName.toLowerCase()}${surname.toUpperCase()}${provider}`; break;
+                    case 5: email = `${firstName.toLowerCase()}${getRandomInt(1, 99)}${provider}`; break;
+                    case 6: email = `${surname.toLowerCase()}${getRandomInt(1, 999)}${provider}`; break;
+                    case 7: email = `${firstName.toLowerCase()}.${surname.toLowerCase()}${getRandomInt(1, 99)}${provider}`; break;
+                    default: email = `${firstName.toLowerCase()}_${surname.toLowerCase()}${getRandomInt(1, 999)}${provider}`; break;
+                }
+
+                if (!usedEmails.has(email)) {
+                    emailData.push({ email, fullName, gender, providerName, country });
+                    usedEmails.add(email);
+                    
+                    // Update progress
+                    if (emailData.length % 100 === 0) {
+                        updateProgress((emailData.length / count) * 100);
+                    }
+                }
+            }
+            
+            updateProgress(100);
+            return emailData;
+        }
+
+        function displayResults(emailData) {
+            const lineSpacing = parseInt(lineSpacingSelect.value);
+            const separator = '\n'.repeat(lineSpacing);
+            
+            const txtOutput = emailData.map((d, i) => 
+                `${i + 1}. ${d.fullName} (${d.gender}) - ${d.email} [${capitalize(d.providerName)}] (${d.country})`
+            ).join(separator);
+            
+            resultsOutput.value = txtOutput;
+        }
+
+        function displayStats(emailData) {
+            const total = emailData.length;
+            const genderCount = { "Male": 0, "Female": 0 };
+            const providerCount = {};
+            const countryCount = {};
+
+            emailData.forEach(d => {
+                genderCount[d.gender]++;
+                providerCount[d.providerName] = (providerCount[d.providerName] || 0) + 1;
+                countryCount[d.country] = (countryCount[d.country] || 0) + 1;
+            });
+
+            let statsHTML = '<h4>By Provider</h4>';
+            for (const [p, c] of Object.entries(providerCount)) {
+                statsHTML += `<div class="stats-item"><span>${capitalize(p)}</span><span>${c} (${(c/total*100).toFixed(1)}%)</span></div>`;
+            }
+            statsHTML += '<h4>By Gender</h4>';
+            for (const [g, c] of Object.entries(genderCount)) {
+                statsHTML += `<div class="stats-item"><span>${g}</span><span>${c} (${(c/total*100).toFixed(1)}%)</span></div>`;
+            }
+            statsHTML += '<h4>By Country</h4>';
+            for (const [c, n] of Object.entries(countryCount)) {
+                statsHTML += `<div class="stats-item"><span>${c}</span><span>${n} (${(n/total*100).toFixed(1)}%)</span></div>`;
+            }
+            statsOutput.innerHTML = statsHTML;
+        }
+
+        function generateCSV(emailData) {
+            let csvContent = "ID,Full Name,First Name,Last Name,Gender,Email,Provider,Country\n";
+            emailData.forEach((d, i) => {
+                const [first, last] = d.fullName.split(" ", 2);
+                const row = [i + 1, d.fullName, first, last, d.gender, d.email, capitalize(d.providerName), d.country].join(',');
+                csvContent += row + "\n";
+            });
+            return csvContent;
+        }
+
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        // --- EVENT LISTENERS ---
+        generateBtn.addEventListener('click', async () => {
+            const femaleNames = parseInput(femaleNamesTextarea.value);
+            const maleNames = parseInput(maleNamesTextarea.value);
+            const surnames = parseInput(surnamesTextarea.value);
+            const emailCount = parseInt(emailCountInput.value);
+
+            if (femaleNames.length === 0 || maleNames.length === 0 || surnames.length === 0) {
+                showToast("⚠️ Please provide names for all categories");
+                return;
+            }
+            
+            if (emailCount < 1 || emailCount > 10000) {
+                showToast("⚠️ Email count must be between 1 and 10,000");
+                return;
+            }
+
+            // Show generating state
+            generateBtn.classList.add('generating');
+            generateBtn.querySelector('span').textContent = 'Generating...';
+            
+            // Simulate async operation for better UX
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            generatedData = generateEmails(emailCount, femaleNames, maleNames, surnames);
+            displayResults(generatedData);
+            displayStats(generatedData);
+            
+            // Reset button state
+            generateBtn.classList.remove('generating');
+            generateBtn.querySelector('span').textContent = '🚀 Generate Emails';
+            
+            showToast(`✓ Generated ${generatedData.length} emails successfully!`);
+        });
+
+        copyTxtBtn.addEventListener('click', () => {
+            if (resultsOutput.value) {
+                navigator.clipboard.writeText(resultsOutput.value)
+                    .then(() => showToast("✓ Copied to clipboard!"))
+                    .catch(() => showToast("✗ Failed to copy"));
+            } else {
+                showToast("⚠️ Generate data first");
+            }
+        });
+
+        downloadTxtBtn.addEventListener('click', () => {
+            if (resultsOutput.value) {
+                downloadFile(resultsOutput.value, 'gmail_addresses.txt', 'text/plain;charset=utf-8;');
+                showToast("✓ TXT file downloaded!");
+            } else {
+                showToast("⚠️ Generate data first");
+            }
+        });
+
+        downloadCsvBtn.addEventListener('click', () => {
+            if (generatedData.length > 0) {
+                const csv = generateCSV(generatedData);
+                downloadFile(csv, 'gmail_addresses.csv', 'text/csv;charset=utf-8;');
+                showToast("✓ CSV file downloaded!");
+            } else {
+                showToast("⚠️ Generate data first");
+            }
+        });
+        
+        // Update results display when spacing changes
+        lineSpacingSelect.addEventListener('change', () => {
+            if (generatedData.length > 0) {
+                displayResults(generatedData);
+                showToast("✓ Line spacing updated!");
+            }
+        });
+
+        // --- INITIALIZATION ---
+        function initialize() {
+            femaleNamesTextarea.value = defaultFemaleNames.join(', ');
+            maleNamesTextarea.value = defaultMaleNames.join(', ');
+            surnamesTextarea.value = defaultSurnames.join(', ');
+        }
+        
+        initialize();
+    </script>
+</body>
+</html>
