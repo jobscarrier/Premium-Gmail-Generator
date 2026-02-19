@@ -754,7 +754,7 @@
                     case 5: email = `${firstName.toLowerCase()}${getRandomInt(1, 99)}${provider}`; break;
                     case 6: email = `${surname.toLowerCase()}${getRandomInt(1, 999)}${provider}`; break;
                     case 7: email = `${firstName.toLowerCase()}.${surname.toLowerCase()}${getRandomInt(1, 99)}${provider}`; break;
-                    default: email = `${firstName.toLowerCase()}_${surname.toLowerCase()}${getRandomInt(1, 999)}${provider}`; break;
+                    default: email = `${firstName.toLowerCase()}.${surname.toLowerCase()}${getRandomInt(1, 999)}${provider}`; break;
                 }
 
                 if (!usedEmails.has(email)) {
