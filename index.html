@@ -749,7 +749,7 @@
                 switch (fmt) {
                     case 1: email = `${firstName.toLowerCase()}.${surname.toLowerCase()}${provider}`; break;
                     case 2: email = `${firstName.toLowerCase()}${surname.toLowerCase()}${provider}`; break;
-                    case 3: email = `${firstName.toLowerCase()}_${surname.toLowerCase()}${provider}`; break;
+                    case 3: email = `${firstName.toLowerCase()}.${surname.toLowerCase()}${provider}`; break;
                     case 4: email = `${firstName.toLowerCase()}${surname.toUpperCase()}${provider}`; break;
                     case 5: email = `${firstName.toLowerCase()}${getRandomInt(1, 99)}${provider}`; break;
                     case 6: email = `${surname.toLowerCase()}${getRandomInt(1, 999)}${provider}`; break;
